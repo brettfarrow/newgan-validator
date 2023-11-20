@@ -1,5 +1,6 @@
 import os
 import re
+import random
 import xml.etree.ElementTree as ET
 
 
@@ -34,11 +35,17 @@ def highest_numbers_in_subfolders(parent_directory):
 
 
 def update_record(record, max_numbers):
+    # Update this list with any photos that are used too frequently.
+    # This is a hack to deal with an older version of the script that didn't randomize properly.
+    # overused_photos = [
+    #     "South American/South American4879",
+    #     "South American/South American9551",
+    #     "SAMed/SAMed1250",
+    #     "SAMed/SAMed126",
+    # ]
     from_attr = record.get("from")
     if from_attr and "/" in from_attr:
         first_folder, second_folder = from_attr.split("/")
-
-        # print(f"Debug: Trying to match '{second_folder}'")  # Debug line
 
         # Use regular expressions to separate the string and numeric parts
         match = re.match(r"([a-zA-Z\s]+)(\d+)$", second_folder)
@@ -57,21 +64,32 @@ def update_record(record, max_numbers):
         # Get the max number for the folder
         max_number = max_numbers.get(second_folder, None)
 
-        # Initialize the new number as the original number
-        new_number = number
-
-        # If the max number exists and is less than the original number, update the new number
+        # Initialize the new number as a random integer between 0 and max_number
         try:
             num_as_int = int(number)
-            if max_number is not None and num_as_int > max_number:
-                new_number = str(min(num_as_int, max_number))
+            if max_number is not None and (
+                num_as_int > max_number or not string_values_match
+            ):
+                new_number = str(random.randint(0, max_number))
+            else:
+                new_number = number
         except ValueError:
             print(f"Could not convert '{number}' to integer. Skipping this record.")
             return
 
         # Update the record if either the string values don't match or the number has changed
-        if not string_values_match or new_number != number:
+        if (
+            not string_values_match
+            or new_number != number
+            # or from_attr in overused_photos  # uncomment if you want to update overused photos
+        ):
             new_from = f"{second_folder}/{second_folder}{new_number}"
+
+            # Uncomment the following lines to update overused photos
+            # Check if the new_from value exists in the list of existing strings
+            # new_number = str(random.randint(0, max_number))  # Re-randomize new_number
+            # new_from = f"{second_folder}/{second_folder}{new_number}"
+
             record.set("from", new_from)
             print(
                 f"Record updated: Previous value '{from_attr}', New value '{new_from}'"
@@ -92,10 +110,10 @@ def update_xml_file(file_path, max_numbers):
 
 
 if __name__ == "__main__":
-    parent_folder_path = input("Enter the parent directory path: ")
+    parent_folder_path = input("Enter the graphics directory path: ")
     result_dict = highest_numbers_in_subfolders(parent_folder_path)
     for subfolder, highest_num in result_dict.items():
         print(f"{subfolder}: {highest_num}")
-    file_path = input("Enter the path to the XML file: ")
+    file_path = f"{parent_folder_path}/config.xml"
     update_xml_file(file_path, result_dict)
     print(f"XML file at {file_path} has been updated.")
