@@ -104,6 +104,25 @@ def update_record(record, max_numbers):
                 f"Record updated: Previous value '{from_attr}', New value '{new_from}'"
             )
 
+    # Adjusting player ID with r- prefix for FM24, comment this block for older versions of the game
+    # to_attr = record.get("to")
+    # if to_attr and "person/" in to_attr:
+    #     parts = to_attr.split("person/")
+    #     if len(parts) == 2:
+    #         # Check if 'r-' prefix already exists
+    #         if not parts[1].startswith("r-"):
+    #             # Add the prefix 'r-' to the number following 'person/'
+    #             modified_part = "r-" + parts[1]
+
+    #             # Reconstruct the modified 'to' attribute
+    #             new_to_attr = "person/".join([parts[0], modified_part])
+
+    #             # Update the 'to' attribute in the record
+    #             record.set("to", new_to_attr)
+    #             print(
+    #                 f"Updated 'to' attribute: Previous value '{to_attr}', New value '{new_to_attr}'"
+    #             )
+
 
 def update_xml_file(file_path, max_numbers):
     tree = ET.parse(file_path)
