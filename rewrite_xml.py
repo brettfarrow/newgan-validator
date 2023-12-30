@@ -83,7 +83,16 @@ def update_record(record, max_numbers):
             or new_number != number
             # or from_attr in overused_photos  # uncomment if you want to update overused photos
         ):
-            new_from = f"{second_folder}/{second_folder}{new_number}"
+            folder_name = second_folder
+            filename_prefix = ""
+
+            # Handle special case where folder name is different from filename prefix (ItalMed only)
+            if second_folder == "Italmed":
+                filename_prefix = "ItalMed"
+            else:
+                filename_prefix = second_folder
+
+            new_from = f"{folder_name}/{filename_prefix}{new_number}"
 
             # Uncomment the following lines to update overused photos
             # Check if the new_from value exists in the list of existing strings
